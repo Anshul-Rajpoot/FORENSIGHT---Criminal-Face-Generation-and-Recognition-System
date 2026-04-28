@@ -143,6 +143,14 @@ def _get_user_password_hash(user: dict) -> str | None:
             return value.strip()
     return None
 
+
+def _clamp_int(value: str | None, default: int, *, min_value: int, max_value: int) -> int:
+    try:
+        n = int(value)
+    except (TypeError, ValueError):
+        return default
+    return max(min_value, min(max_value, n))
+
 @app.route("/api/auth/signup", methods=["POST"])
 def signup():
     data = request.get_json()
@@ -282,6 +290,64 @@ def enroll():
     collection.insert_one(doc)
 
     return jsonify({"message": "Added"}), 201
+
+
+@app.route("/api/latest-criminals", methods=["GET"])
+def latest_criminals():
+    limit = _clamp_int(request.args.get("limit"), 10, min_value=1, max_value=50)
+    try:
+        criminals = list(
+            collection.find(
+                {},
+                {"_id": 0, "embedding": 0},
+            ).sort("createdAt", -1).limit(limit)
+        )
+        return jsonify({"criminals": criminals})
+    except Exception as e:
+        print("latest_criminals error:", e)
+        return jsonify({"message": "Database not reachable"}), 503
+
+
+@app.route("/api/members", methods=["GET"])
+@require_auth()
+def members():
+    name = (request.args.get("name") or "").strip()
+    sex = (request.args.get("sex") or "").strip()
+    limit = _clamp_int(request.args.get("limit"), 50, min_value=1, max_value=100)
+
+    if not name:
+        return jsonify({"message": "Missing name"}), 400
+
+    query: dict = {"name": re.compile(re.escape(name), re.IGNORECASE)}
+    if sex:
+        query["sex"] = re.compile(rf"^{re.escape(sex)}$", re.IGNORECASE)
+
+    try:
+        results = list(
+            collection.find(
+                query,
+                {"_id": 0, "embedding": 0},
+            ).sort("createdAt", -1).limit(limit)
+        )
+        return jsonify({"members": results})
+    except Exception as e:
+        print("members error:", e)
+        return jsonify({"message": "Database not reachable"}), 503
+
+
+@app.route("/api/health", methods=["GET"])
+def health():
+    mongo_ok = False
+    try:
+        client.admin.command("ping")
+        mongo_ok = True
+    except Exception as e:
+        print("health ping error:", e)
+
+    return jsonify({
+        "ok": True,
+        "mongo": mongo_ok,
+    })
 
 
 @app.route("/")

@@ -16,10 +16,15 @@ export default function Home() {
     const run = async () => {
       try {
         const res = await fetch(`${API_BASE}/api/latest-criminals?limit=10`);
-        const data = await res.json();
+        let data = {};
+        try {
+          data = await res.json();
+        } catch {
+          data = {};
+        }
 
         if (!res.ok) {
-          setApiError(`Failed to load (HTTP ${res.status})`);
+          setApiError(data.message || `Failed to load (HTTP ${res.status})`);
           return;
         }
 
