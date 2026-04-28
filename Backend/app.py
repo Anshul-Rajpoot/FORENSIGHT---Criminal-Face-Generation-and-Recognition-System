@@ -31,7 +31,14 @@ _token_serializer = URLSafeTimedSerializer(app.secret_key, salt="auth")
 TOKEN_MAX_AGE_SECONDS = 60 * 60 * 24 * 7
 
 # MongoDB
-client = MongoClient(os.getenv("MONGO_CONNECTION_STRING"))
+_mongo_uri = (os.getenv("MONGO_CONNECTION_STRING") or "").strip()
+_mongo_timeout_ms = _clamp_int(
+    os.getenv("MONGO_SERVER_SELECTION_TIMEOUT_MS"),
+    5000,
+    min_value=1000,
+    max_value=30000,
+)
+client = MongoClient(_mongo_uri or "mongodb://localhost:27017", serverSelectionTimeoutMS=_mongo_timeout_ms)
 db = client["face_recognition_db"]
 collection = db["criminals"]
 users_collection = db["users"]
