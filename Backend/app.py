@@ -2,14 +2,7 @@ import io
 import os
 import numpy as np
 from datetime import datetime
-import multiprocessing
 import re
-from functools import wraps
-from concurrent.futures import ProcessPoolExecutor, TimeoutError
-from concurrent.futures.process import BrokenProcessPool
-
-# ✅ IMPORTANT for Render
-multiprocessing.set_start_method("spawn", force=True)
 
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, g
@@ -17,6 +10,7 @@ from PIL import Image
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+from flask_cors import CORS
 import cloudinary
 import cloudinary.uploader
 
@@ -31,22 +25,29 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev")
 
+CORS(app)  # simple CORS fix
+
 _token_serializer = URLSafeTimedSerializer(app.secret_key, salt="auth")
 TOKEN_MAX_AGE_SECONDS = 60 * 60 * 24 * 7
 
+# MongoDB
 client = MongoClient(os.getenv("MONGO_CONNECTION_STRING"))
 db = client["face_recognition_db"]
 collection = db["criminals"]
 users_collection = db["users"]
 
+# Cloudinary
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
     api_key=os.getenv("CLOUDINARY_API_KEY"),
     api_secret=os.getenv("CLOUDINARY_API_SECRET")
 )
 
-THRESHOLD = float(os.getenv("MATCH_THRESHOLD", "0.5"))
-TIMEOUT = int(os.getenv("EMBEDDING_TIMEOUT_SECONDS", "60"))
+# SETTINGS (LIGHTWEIGHT)
+THRESHOLD = float(os.getenv("MATCH_THRESHOLD", "0.3"))
+MODEL = "Facenet"           # lighter
+DETECTOR = "opencv"         # lighter
+ENFORCE = False             # avoid detection failure
 
 # ==============================
 # AUTH HELPERS
@@ -54,20 +55,21 @@ TIMEOUT = int(os.getenv("EMBEDDING_TIMEOUT_SECONDS", "60"))
 def _issue_token(email, role):
     return _token_serializer.dumps({"email": email, "role": role})
 
-
 def _verify_token(token):
     return _token_serializer.loads(token, max_age=TOKEN_MAX_AGE_SECONDS)
 
-
 def require_auth(required_role=None):
     def decorator(fn):
-        @wraps(fn)
         def wrapper(*args, **kwargs):
+            if request.method == "OPTIONS":
+                return ("", 204)
+
             auth = request.headers.get("Authorization", "")
             if not auth.startswith("Bearer "):
                 return jsonify({"message": "Missing token"}), 401
 
-            token = auth.split(" ", 1)[1]
+            token = auth.split(" ")[1]
+
             try:
                 payload = _verify_token(token)
             except SignatureExpired:
@@ -81,63 +83,43 @@ def require_auth(required_role=None):
             g.user = payload
             return fn(*args, **kwargs)
 
+        wrapper.__name__ = fn.__name__
         return wrapper
     return decorator
 
 # ==============================
-# IMAGE PROCESSING
+# UTILS
 # ==============================
 def file_to_numpy(file_bytes):
     return np.array(Image.open(io.BytesIO(file_bytes)).convert("RGB"))
 
-
-def compute_embedding_worker(file_bytes):
+def get_embedding(file_bytes):
     try:
-        import face_recognition
+        from deepface import DeepFace
 
         img = file_to_numpy(file_bytes)
-        rgb_img = img[:, :, ::-1]
 
-        encodings = face_recognition.face_encodings(rgb_img)
+        reps = DeepFace.represent(
+            img_path=img,
+            model_name=MODEL,
+            detector_backend=DETECTOR,
+            enforce_detection=ENFORCE,
+        )
 
-        if not encodings:
+        if not reps:
             return None
 
-        emb = encodings[0]
+        emb = np.array(reps[0]["embedding"], dtype=np.float32)
         emb = emb / np.linalg.norm(emb)
-
         return emb.tolist()
 
     except Exception as e:
         print("Embedding error:", e)
         return None
 
-
-_executor = None
-
-
-def get_executor():
-    global _executor
-    if _executor is None:
-        ctx = multiprocessing.get_context("spawn")
-        _executor = ProcessPoolExecutor(max_workers=1, mp_context=ctx)
-    return _executor
-
-
-def get_embedding(file_bytes):
-    try:
-        fut = get_executor().submit(compute_embedding_worker, file_bytes)
-        return fut.result(timeout=TIMEOUT)
-    except TimeoutError:
-        return None
-    except BrokenProcessPool:
-        return None
-
-
 def upload_image(file_bytes):
     result = cloudinary.uploader.upload(io.BytesIO(file_bytes))
     return result["secure_url"]
-
 
 def cosine_score(a, b):
     a = np.array(a)
@@ -151,30 +133,34 @@ def cosine_score(a, b):
 @app.route("/api/auth/signup", methods=["POST"])
 def signup():
     data = request.get_json()
-    email = data["email"]
-    password = data["password"]
+
+    name = data.get("name")
+    email = data.get("email")
+    password = data.get("password")
 
     if users_collection.find_one({"email": email}):
-        return jsonify({"message": "User exists"}), 400
+        return jsonify({"message": "User exists"}), 409
 
     users_collection.insert_one({
+        "name": name,
         "email": email,
-        "password": generate_password_hash(password),
-        "role": "NORMAL"
+        "passwordHash": generate_password_hash(password),
+        "role": "NORMAL",
+        "createdAt": datetime.utcnow()
     })
 
-    return jsonify({"message": "Signup success"})
+    return jsonify({"message": "Signup successful"}), 201
 
 
 @app.route("/api/auth/login", methods=["POST"])
 def login():
     data = request.get_json()
-    user = users_collection.find_one({"email": data["email"]})
 
-    if not user or not check_password_hash(user["password"], data["password"]):
+    user = users_collection.find_one({"email": data.get("email")})
+    if not user or not check_password_hash(user["passwordHash"], data.get("password")):
         return jsonify({"message": "Invalid credentials"}), 401
 
-    token = _issue_token(user["email"], user["role"])
+    token = _issue_token(user["email"], user.get("role", "NORMAL"))
     return jsonify({"token": token})
 
 
@@ -182,14 +168,17 @@ def login():
 @require_auth()
 def upload_and_match():
     file = request.files.get("image")
+
     if not file:
-        return jsonify({"error": "No image"}), 400
+        return jsonify({"error": "No file"}), 400
 
     emb = get_embedding(file.read())
+
     if emb is None:
-        return jsonify({"error": "No face detected"}), 400
+        return jsonify({"error": "Face not detected"}), 400
 
     results = []
+
     for doc in collection.find():
         if "embedding" not in doc:
             continue
@@ -198,44 +187,55 @@ def upload_and_match():
 
         if score >= THRESHOLD:
             results.append({
-                "name": doc["name"],
-                "crime": doc["crime"],
-                "imageURL": doc["imageURL"],
+                "name": doc.get("name"),
+                "crime": doc.get("crime"),
+                "imageURL": doc.get("imageURL"),
                 "score": float(score)
             })
 
     results.sort(key=lambda x: x["score"], reverse=True)
+
     return jsonify({"matches": results[:5]})
 
 
 @app.route("/api/enroll", methods=["POST"])
-@require_auth("ADMIN")
+@require_auth(required_role="ADMIN")
 def enroll():
     file = request.files.get("image")
-    data = request.form
 
-    emb = get_embedding(file.read())
-    if emb is None:
+    if not file:
+        return jsonify({"message": "No file"}), 400
+
+    file_bytes = file.read()
+    embedding = get_embedding(file_bytes)
+
+    if embedding is None:
         return jsonify({"message": "Face not detected"}), 400
 
-    image_url = upload_image(file.read())
+    image_url = upload_image(file_bytes)
 
-    collection.insert_one({
-        "name": data["name"],
-        "crime": data["crime"],
+    data = request.form
+
+    doc = {
+        "name": data.get("name"),
+        "age": int(data.get("age")),
+        "crime": data.get("crime"),
         "imageURL": image_url,
-        "embedding": emb
-    })
+        "embedding": embedding,
+        "createdAt": datetime.utcnow()
+    }
 
-    return jsonify({"message": "Added"})
+    collection.insert_one(doc)
+
+    return jsonify({"message": "Added"}), 201
 
 
 @app.route("/")
 def home():
-    return "Backend running!"
+    return "Backend Running 🚀"
 
 # ==============================
 # RUN
 # ==============================
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=10000)
