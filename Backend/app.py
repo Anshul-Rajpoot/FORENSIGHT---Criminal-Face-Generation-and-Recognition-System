@@ -130,13 +130,41 @@ def cosine_score(a, b):
 # ROUTES
 # ==============================
 
+def _normalize_email(email: str | None) -> str:
+    return (email or "").strip().lower()
+
+
+def _get_user_password_hash(user: dict) -> str | None:
+    if not isinstance(user, dict):
+        return None
+    for key in ("passwordHash", "password_hash", "password"):
+        value = user.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return None
+
 @app.route("/api/auth/signup", methods=["POST"])
 def signup():
     data = request.get_json()
 
-    name = data.get("name")
-    email = data.get("email")
+    if not isinstance(data, dict):
+        return jsonify({"message": "Invalid JSON"}), 400
+
+    name = (data.get("name") or "").strip()
+    email = _normalize_email(data.get("email"))
     password = data.get("password")
+    requested_role = (data.get("role") or "NORMAL").strip().upper()
+    admin_secret = (data.get("adminSecret") or "").strip()
+
+    if not name or not email or not isinstance(password, str) or not password:
+        return jsonify({"message": "Missing required fields"}), 400
+
+    role = "NORMAL"
+    if requested_role == "ADMIN":
+        expected = (os.getenv("ADMIN_SECRET_KEY") or "").strip()
+        if not expected or admin_secret != expected:
+            return jsonify({"message": "Invalid admin secret"}), 403
+        role = "ADMIN"
 
     if users_collection.find_one({"email": email}):
         return jsonify({"message": "User exists"}), 409
@@ -145,7 +173,7 @@ def signup():
         "name": name,
         "email": email,
         "passwordHash": generate_password_hash(password),
-        "role": "NORMAL",
+        "role": role,
         "createdAt": datetime.utcnow()
     })
 
@@ -156,12 +184,29 @@ def signup():
 def login():
     data = request.get_json()
 
-    user = users_collection.find_one({"email": data.get("email")})
-    if not user or not check_password_hash(user["passwordHash"], data.get("password")):
+    if not isinstance(data, dict):
+        return jsonify({"message": "Invalid JSON"}), 400
+
+    email = _normalize_email(data.get("email"))
+    password = data.get("password")
+    if not email or not isinstance(password, str) or not password:
+        return jsonify({"message": "Missing email or password"}), 400
+
+    user = users_collection.find_one({"email": email})
+    stored_hash = _get_user_password_hash(user or {})
+    if not user or not stored_hash or not check_password_hash(stored_hash, password):
         return jsonify({"message": "Invalid credentials"}), 401
 
-    token = _issue_token(user["email"], user.get("role", "NORMAL"))
-    return jsonify({"token": token})
+    role = user.get("role", "NORMAL")
+    token = _issue_token(user.get("email", email), role)
+    return jsonify({
+        "token": token,
+        "user": {
+            "email": user.get("email", email),
+            "name": user.get("name"),
+            "role": role,
+        }
+    })
 
 
 @app.route("/api/upload", methods=["POST"])
