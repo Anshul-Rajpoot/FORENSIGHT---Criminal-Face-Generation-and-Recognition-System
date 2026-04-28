@@ -1,0 +1,52 @@
+.panel {
+  width: 300px;
+  height: 100vh;
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(12px);
+  border-left: 1px solid rgba(255,255,255,0.08);
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.heading {
+  font-size: 18px;
+  color: #e2e8f0;
+  margin-bottom: 12px;
+}
+
+.empty {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.layerItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  background: #1e293b;
+  transition: 0.2s;
+}
+
+.layerItem:hover {
+  background: #334155;
+}
+
+.active {
+  background: #3b82f6;
+}
+
+.preview {
+  width: 120px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.layerLabel {
+  color: #e2e8f0;
+  font-size: 14px;
+}

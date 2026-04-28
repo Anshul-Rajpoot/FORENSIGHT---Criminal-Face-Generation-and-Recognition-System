@@ -1,0 +1,105 @@
+.footer {
+  background: linear-gradient(to right, #020617, #0f172a);
+  padding: 40px 60px 20px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+/* GRID LAYOUT */
+.inner {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr 1fr;
+  gap: 40px;
+}
+
+/* BRAND */
+.brandRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brandLogo {
+  width: 40px;
+}
+
+.brandName {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* FOLLOW */
+.followWrap {
+  margin-top: 20px;
+}
+
+.followTitle {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-bottom: 10px;
+}
+
+.socialRow {
+  display: flex;
+  gap: 10px;
+}
+
+.socialBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #cbd5f5;
+  text-decoration: none;
+  transition: 0.25s;
+}
+
+.socialBtn:hover {
+  background: #3b82f6;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.socialIcon {
+  width: 35px;
+  height: 35px;
+}
+
+/* COLUMNS */
+.colTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.colLink {
+  display: block;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 14px;
+  margin-bottom: 8px;
+  transition: 0.2s;
+}
+
+.colLink:hover {
+  color: #60a5fa;
+  transform: translateX(3px);
+}
+
+/* BOTTOM */
+.bottom {
+  margin-top: 30px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding-top: 15px;
+  text-align: center;
+}
+
+.muted {
+  color: #64748b;
+  font-size: 13px;
+}
+

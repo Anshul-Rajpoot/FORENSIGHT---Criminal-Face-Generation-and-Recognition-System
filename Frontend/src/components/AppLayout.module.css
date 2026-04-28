@@ -1,0 +1,23 @@
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #0f172a;
+}
+
+.main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.workArea {
+  width: 100%;
+  max-width: 1440px;
+  min-height: 0;
+  flex: 1;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+}
