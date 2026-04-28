@@ -151,7 +151,8 @@ def signup():
         return jsonify({"message": "Invalid JSON"}), 400
 
     name = (data.get("name") or "").strip()
-    email = _normalize_email(data.get("email"))
+    raw_email = (data.get("email") or "").strip()
+    email = _normalize_email(raw_email)
     password = data.get("password")
     requested_role = (data.get("role") or "NORMAL").strip().upper()
     admin_secret = (data.get("adminSecret") or "").strip()
@@ -166,7 +167,10 @@ def signup():
             return jsonify({"message": "Invalid admin secret"}), 403
         role = "ADMIN"
 
-    if users_collection.find_one({"email": email}):
+    existing = users_collection.find_one({
+        "email": re.compile(rf"^{re.escape(raw_email)}$", re.IGNORECASE)
+    })
+    if existing:
         return jsonify({"message": "User exists"}), 409
 
     users_collection.insert_one({
@@ -187,12 +191,17 @@ def login():
     if not isinstance(data, dict):
         return jsonify({"message": "Invalid JSON"}), 400
 
-    email = _normalize_email(data.get("email"))
+    raw_email = (data.get("email") or "").strip()
+    email = _normalize_email(raw_email)
     password = data.get("password")
     if not email or not isinstance(password, str) or not password:
         return jsonify({"message": "Missing email or password"}), 400
 
     user = users_collection.find_one({"email": email})
+    if not user and raw_email:
+        user = users_collection.find_one({
+            "email": re.compile(rf"^{re.escape(raw_email)}$", re.IGNORECASE)
+        })
     stored_hash = _get_user_password_hash(user or {})
     if not user or not stored_hash or not check_password_hash(stored_hash, password):
         return jsonify({"message": "Invalid credentials"}), 401
