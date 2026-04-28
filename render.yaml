@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: forensight-backend
+    env: python
+    rootDir: Backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 180
+    envVars:
+      - key: FLASK_SECRET_KEY
+        sync: false
+      - key: MONGO_CONNECTION_STRING
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: FRONTEND_ORIGINS
+        sync: false
+      - key: MATCH_THRESHOLD
+        value: "0.3"
+      - key: FACE_MODEL
+        value: "Facenet512"
+      - key: FACE_DETECTOR
+        value: "retinaface"
+      - key: ENFORCE_DETECTION
+        value: "true"
+      - key: EMBEDDING_TIMEOUT_SECONDS
+        value: "180"

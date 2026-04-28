@@ -51,12 +51,22 @@ DETECTOR = os.getenv("FACE_DETECTOR", "retinaface")
 ENFORCE = os.getenv("ENFORCE_DETECTION", "true").lower() in {"1", "true", "yes"}
 TIMEOUT = int(os.getenv("EMBEDDING_TIMEOUT_SECONDS", "180"))
 
-# Frontend origins (Vite)
+# Frontend origins (Vite / deployed frontend)
+def _parse_csv_origins(value: str) -> set[str]:
+    return {origin.strip() for origin in value.split(",") if origin.strip()}
+
+
+_extra_origins: set[str] = set()
+_extra_origins |= _parse_csv_origins(os.getenv("FRONTEND_ORIGIN", ""))
+_extra_origins |= _parse_csv_origins(os.getenv("FRONTEND_ORIGINS", ""))
+_extra_origins |= _parse_csv_origins(os.getenv("CORS_ALLOWED_ORIGINS", ""))
+
 ALLOWED_ORIGINS = {
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:5174",
     "http://127.0.0.1:5174",
+    *_extra_origins,
 }
 
 
