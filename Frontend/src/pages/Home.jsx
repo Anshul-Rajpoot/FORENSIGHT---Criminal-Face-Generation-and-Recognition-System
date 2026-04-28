@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { API_BASE_URL } from "../utils/apiBase.js";
 import styles from "./Home.module.css";
 
 export default function Home() {
-  const API_BASE = useMemo(() => "http://localhost:8000", []);
+  const API_BASE = useMemo(() => API_BASE_URL, []);
 
   const [criminals, setCriminals] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);

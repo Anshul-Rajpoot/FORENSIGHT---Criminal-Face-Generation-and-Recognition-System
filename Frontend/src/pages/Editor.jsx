@@ -6,13 +6,14 @@ import LayersPanel from "../components/LayersPanel.jsx";
 import Toast from "../components/Toast.jsx";
 import { useCanvas } from "../hooks/useCanvas.js";
 import { useToast } from "../hooks/useToast.js";
+import { API_BASE_URL } from "../utils/apiBase.js";
 import styles from "./Editor.module.css";
 
 export default function Editor() {
   const { toasts, showToast } = useToast();
   const navigate = useNavigate();
 
-  const API_BASE = useMemo(() => "http://localhost:8000", []);
+  const API_BASE = useMemo(() => API_BASE_URL, []);
   const token = localStorage.getItem("token");
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState(null);

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { API_BASE_URL } from "../utils/apiBase.js";
 import styles from "./Results.module.css";
 
 function dataUrlToFile(dataUrl, filename) {
@@ -14,7 +15,7 @@ function dataUrlToFile(dataUrl, filename) {
 
 export default function Results() {
   const location = useLocation();
-  const API_BASE = useMemo(() => "http://localhost:8000", []);
+  const API_BASE = useMemo(() => API_BASE_URL, []);
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState(() => {
     return (

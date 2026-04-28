@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "../utils/apiBase.js";
 import styles from "./AdminUpload.module.css";
 
 export default function AdminUpload() {
@@ -39,7 +40,7 @@ export default function AdminUpload() {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:8000/api/enroll", {
+      const res = await fetch(`${API_BASE_URL}/api/enroll`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,

@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { API_BASE_URL } from "../utils/apiBase.js";
 import styles from "./Members.module.css";
 
 export default function Members() {
-  const API_BASE = useMemo(() => "http://localhost:8000", []);
+  const API_BASE = useMemo(() => API_BASE_URL, []);
   const [params] = useSearchParams();
 
   const name = (params.get("name") || "").trim();
