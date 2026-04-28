@@ -1,9 +1,9 @@
 flask
 gunicorn
-numpy
-opencv-python
-face-recognition
 pymongo
-cloudinary
 python-dotenv
-Pillow
+pillow
+numpy
+deepface
+cloudinary
+flask-cors
