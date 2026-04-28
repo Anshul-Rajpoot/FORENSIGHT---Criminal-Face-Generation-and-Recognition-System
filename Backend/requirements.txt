@@ -1,10 +1,9 @@
-numpy
-python-dotenv
 flask
-Pillow
-pymongo
-werkzeug
-itsdangerous
-cloudinary
-deepface
 gunicorn
+numpy
+opencv-python
+face-recognition
+pymongo
+cloudinary
+python-dotenv
+Pillow
