@@ -4,6 +4,13 @@ pymongo
 python-dotenv
 pillow
 numpy
-deepface
 cloudinary
 flask-cors
+
+# IMPORTANT FIXES
+deepface==0.0.79
+opencv-python-headless
+tensorflow-cpu
+
+# Force binary install (prevents build crash)
+dlib==19.24.2
