@@ -14,6 +14,14 @@ from flask_cors import CORS
 import cloudinary
 import cloudinary.uploader
 
+
+def _clamp_int(value: str | None, default: int, *, min_value: int, max_value: int) -> int:
+    try:
+        n = int(value)
+    except (TypeError, ValueError):
+        return default
+    return max(min_value, min(max_value, n))
+
 # ==============================
 # LOAD ENV
 # ==============================
@@ -149,14 +157,6 @@ def _get_user_password_hash(user: dict) -> str | None:
         if isinstance(value, str) and value.strip():
             return value.strip()
     return None
-
-
-def _clamp_int(value: str | None, default: int, *, min_value: int, max_value: int) -> int:
-    try:
-        n = int(value)
-    except (TypeError, ValueError):
-        return default
-    return max(min_value, min(max_value, n))
 
 @app.route("/api/auth/signup", methods=["POST"])
 def signup():
