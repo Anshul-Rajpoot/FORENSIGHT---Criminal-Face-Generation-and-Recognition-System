@@ -76,9 +76,14 @@ export default function Results() {
         body: formData,
       });
 
-      const data = await res.json();
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
+      }
       if (!res.ok) {
-        alert(data.error || data.message || "Search failed");
+        alert(data.error || data.message || `Search failed (HTTP ${res.status})`);
         setMatches([]);
         return;
       }

@@ -80,9 +80,17 @@ export default function Editor() {
         body: formData,
       });
 
-      const data = await res.json();
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
+      }
       if (!res.ok) {
-        showToast(data.error || data.message || "Upload failed", "warning");
+        showToast(
+          data.error || data.message || `Upload failed (HTTP ${res.status})`,
+          "warning",
+        );
         return;
       }
 

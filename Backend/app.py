@@ -13,6 +13,7 @@ from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from flask_cors import CORS
 import cloudinary
 import cloudinary.uploader
+from werkzeug.exceptions import HTTPException
 
 
 def _clamp_int(value: str | None, default: int, *, min_value: int, max_value: int) -> int:
@@ -139,7 +140,18 @@ def upload_image(file_bytes):
 def cosine_score(a, b):
     a = np.array(a)
     b = np.array(b)
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+    denom = (np.linalg.norm(a) * np.linalg.norm(b))
+    if denom == 0:
+        return 0.0
+    return float(np.dot(a, b) / denom)
+
+
+@app.errorhandler(Exception)
+def _handle_unexpected_error(e):
+    if isinstance(e, HTTPException):
+        return e
+    print("Unhandled error:", repr(e))
+    return jsonify({"message": "Server error"}), 500
 
 # ==============================
 # ROUTES
@@ -236,35 +248,50 @@ def login():
 @app.route("/api/upload", methods=["POST"])
 @require_auth()
 def upload_and_match():
-    file = request.files.get("image")
+    try:
+        file = request.files.get("image")
+        if not file:
+            return jsonify({"error": "No file"}), 400
 
-    if not file:
-        return jsonify({"error": "No file"}), 400
+        sex_filter = (request.form.get("sex_filter") or "").strip()
 
-    emb = get_embedding(file.read())
+        emb = get_embedding(file.read())
+        if emb is None:
+            return jsonify({"error": "Face not detected"}), 400
 
-    if emb is None:
-        return jsonify({"error": "Face not detected"}), 400
+        query: dict = {"embedding": {"$exists": True}}
+        if sex_filter:
+            query["sex"] = re.compile(rf"^{re.escape(sex_filter)}$", re.IGNORECASE)
 
-    results = []
+        results = []
+        cursor = collection.find(
+            query,
+            {"_id": 0, "name": 1, "crime": 1, "imageURL": 1, "sex": 1, "embedding": 1},
+        )
 
-    for doc in collection.find():
-        if "embedding" not in doc:
-            continue
+        for doc in cursor:
+            embedding = doc.get("embedding")
+            if not embedding:
+                continue
+            try:
+                score = cosine_score(emb, embedding)
+            except Exception:
+                continue
 
-        score = cosine_score(emb, doc["embedding"])
+            if score >= THRESHOLD:
+                results.append({
+                    "name": doc.get("name"),
+                    "crime": doc.get("crime"),
+                    "imageURL": doc.get("imageURL"),
+                    "score": float(score),
+                })
 
-        if score >= THRESHOLD:
-            results.append({
-                "name": doc.get("name"),
-                "crime": doc.get("crime"),
-                "imageURL": doc.get("imageURL"),
-                "score": float(score)
-            })
+        results.sort(key=lambda x: x["score"], reverse=True)
+        return jsonify({"matches": results[:5]})
 
-    results.sort(key=lambda x: x["score"], reverse=True)
-
-    return jsonify({"matches": results[:5]})
+    except Exception as e:
+        print("upload_and_match error:", repr(e))
+        return jsonify({"message": "Server error"}), 500
 
 
 @app.route("/api/enroll", methods=["POST"])
