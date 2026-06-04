@@ -73,7 +73,7 @@ export default function Home() {
             <div className={styles.cardBox}>
               <div className={styles.cardTitle2}>🔍 About Project</div>
               <p>
-                An AI-powered criminal identification system that combines interactive face generation with deep learning–based facial recognition. The system allows users to construct a suspect’ s face using modular facial components, enhances the generated image using AI-based refinement, and performs identification by comparing facial embeddings with a criminal database. This integrated pipeline improves accuracy, reduces dependency on manual sketching, and enables efficient suspect matching.
+                An AI-powered criminal identification system that combines interactive face generation with deep learning–based facial recognition. The system allows users to construct a suspect's face face using modular facial components, enhances the generated image using AI-based refinement, and performs identification by comparing facial embeddings with a criminal database. This integrated pipeline improves accuracy, reduces dependency on manual sketching, and enables efficient suspect matching.
               </p>
             </div>
 
