@@ -246,3 +246,24 @@
   font-size: 14px;
   color: #e2e8f0;
 }
+
+.teamLeaderSection {
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 10px;
+  background: rgba(56, 189, 248, 0.05);
+}
+
+.teamHeading {
+  color: #38bdf8;
+  font-weight: 700;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.teamLeaderName {
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+}
