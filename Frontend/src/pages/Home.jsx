@@ -87,38 +87,20 @@ export default function Home() {
 <div className={styles.cardBox}>
   <div className={styles.cardTitle2}>👨‍💻 Development Team</div>
 
-  {/* Team Leader */}
-  <div
-    style={{
-      padding: "10px 0",
-      borderBottom: "1px solid rgba(255,255,255,0.1)",
-      marginBottom: "8px",
-    }}
-  >
-    <div
-      style={{
-        color: "#38bdf8",
-        fontWeight: "600",
-        marginBottom: "6px",
-      }}
-    >
-      ⭐ Project Lead
+  <div className={styles.teamLeaderSection}>
+    <div className={styles.teamHeading}>
+      ⭐ Team Leader
     </div>
 
     <div className={styles.devRow}>
-      <span><b>Anshul Rajpoot</b></span>
+      <span className={styles.teamLeaderName}>
+        Anshul Rajpoot
+      </span>
       <span>2311401168</span>
     </div>
   </div>
 
-  {/* Members */}
-  <div
-    style={{
-      color: "#38bdf8",
-      fontWeight: "600",
-      marginBottom: "6px",
-    }}
-  >
+  <div className={styles.teamHeading}>
     👥 Team Members
   </div>
 
