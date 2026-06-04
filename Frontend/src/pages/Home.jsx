@@ -83,27 +83,15 @@ export default function Home() {
               <p><b>Criminal Face Generation and Recognition</b></p>
             </div>
 
-            {/* DEVELOPERS */}
+            {/* DEVELOPER */}
             <div className={styles.cardBox}>
-              <div className={styles.cardTitle2}>👨‍💻 Developers</div>
+              <div className={styles.cardTitle2}>👨‍💻 Developer</div>
 
               <div className={styles.devRow}>
                 <span>Anshul Rajpoot</span>
                 <span>2311401168</span>
               </div>
-              <div className={styles.devRow}>
-                <span>Satyam Gupta</span>
-                <span>2311401167</span>
-              </div>
-              <div className={styles.devRow}>
-                <span>Ritesh Jat</span>
-                <span>2311401165</span>
-              </div>
-              <div className={styles.devRow}>
-                <span>Gajendra Verma</span>
-                <span>2311401211</span>
-              </div>
-            </div>
+                         </div>
 
             {/* COLLEGE */}
             <div className={styles.cardBox}>
