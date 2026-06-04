@@ -89,7 +89,7 @@ export default function Home() {
               <p><b>Criminal Face Generation and Recognition</b></p>
             </div>
 
-            {/* DEVELOPER */}
+           {/* DEVELOPER */}
 <div className={styles.cardBox}>
   <div className={styles.cardTitle2}>👨‍💻 Developer</div>
 
@@ -105,8 +105,7 @@ export default function Home() {
       <span>2311401168</span>
     </div>
   </div>
-</div>
-            
+</div>            
             {/* COLLEGE */}
             <div className={styles.cardBox}>
               <div className={styles.cardTitle2}>🎓 Institution</div>
