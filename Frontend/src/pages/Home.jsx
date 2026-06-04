@@ -83,16 +83,61 @@ export default function Home() {
               <p><b>Criminal Face Generation and Recognition</b></p>
             </div>
 
-            {/* DEVELOPER */}
-            <div className={styles.cardBox}>
-              <div className={styles.cardTitle2}>👨‍💻 Developer</div>
+             {/* DEVELOPERS */}
+<div className={styles.cardBox}>
+  <div className={styles.cardTitle2}>👨‍💻 Development Team</div>
 
-              <div className={styles.devRow}>
-                <span>Anshul Rajpoot</span>
-                <span>2311401168</span>
-              </div>
-                         </div>
+  {/* Team Leader */}
+  <div
+    style={{
+      padding: "10px 0",
+      borderBottom: "1px solid rgba(255,255,255,0.1)",
+      marginBottom: "8px",
+    }}
+  >
+    <div
+      style={{
+        color: "#38bdf8",
+        fontWeight: "600",
+        marginBottom: "6px",
+      }}
+    >
+      ⭐ Project Lead
+    </div>
 
+    <div className={styles.devRow}>
+      <span><b>Anshul Rajpoot</b></span>
+      <span>2311401168</span>
+    </div>
+  </div>
+
+  {/* Members */}
+  <div
+    style={{
+      color: "#38bdf8",
+      fontWeight: "600",
+      marginBottom: "6px",
+    }}
+  >
+    👥 Team Members
+  </div>
+
+  <div className={styles.devRow}>
+    <span>Satyam Gupta</span>
+    <span>2311401167</span>
+  </div>
+
+  <div className={styles.devRow}>
+    <span>Ritesh Jat</span>
+    <span>2311401165</span>
+  </div>
+
+  <div className={styles.devRow}>
+    <span>Gajendra Verma</span>
+    <span>2311401211</span>
+  </div>
+</div>
+            
             {/* COLLEGE */}
             <div className={styles.cardBox}>
               <div className={styles.cardTitle2}>🎓 Institution</div>
