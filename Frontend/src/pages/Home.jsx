@@ -93,20 +93,13 @@ export default function Home() {
 <div className={styles.cardBox}>
   <div className={styles.cardTitle2}>👨‍💻 Developer</div>
 
-  <div className={styles.teamLeaderSection}>
-    <div className={styles.teamHeading}>
-      Lead Developer
-    </div>
-
-    <div className={styles.devRow}>
-      <span className={styles.teamLeaderName}>
-        Anshul Rajpoot
-      </span>
-      <span>2311401168</span>
-    </div>
+  <div className={styles.devRow}>
+    <span className={styles.teamLeaderName}>
+      Anshul Rajpoot
+    </span>
+    <span>2311401168</span>
   </div>
-</div>            
-            {/* COLLEGE */}
+</div>            {/* COLLEGE */}
             <div className={styles.cardBox}>
               <div className={styles.cardTitle2}>🎓 Institution</div>
               <p>MANIT Bhopal</p>
