@@ -72,9 +72,15 @@ export default function Home() {
             {/* ABOUT */}
             <div className={styles.cardBox}>
               <div className={styles.cardTitle2}>🔍 About Project</div>
-              <p>
-                An AI-powered criminal identification system that combines interactive face generation with deep learning–based facial recognition. The system allows users to construct a suspect's face face using modular facial components, enhances the generated image using AI-based refinement, and performs identification by comparing facial embeddings with a criminal database. This integrated pipeline improves accuracy, reduces dependency on manual sketching, and enables efficient suspect matching.
-              </p>
+             <p>
+  An AI-powered criminal identification system that combines interactive face
+  generation with deep learning–based facial recognition. The system allows
+  users to construct a suspect's face using modular facial components,
+  enhances the generated image using AI-based refinement, and performs
+  identification by comparing facial embeddings with a criminal database.
+  This integrated pipeline improves accuracy, reduces dependency on manual
+  sketching, and enables efficient suspect matching.
+</p>
             </div>
 
             {/* TITLE */}
@@ -83,13 +89,13 @@ export default function Home() {
               <p><b>Criminal Face Generation and Recognition</b></p>
             </div>
 
-             {/* DEVELOPERS */}
+            {/* DEVELOPER */}
 <div className={styles.cardBox}>
-  <div className={styles.cardTitle2}>👨‍💻 Development Team</div>
+  <div className={styles.cardTitle2}>👨‍💻 Developer</div>
 
   <div className={styles.teamLeaderSection}>
     <div className={styles.teamHeading}>
-      ⭐ Team Leader
+      Lead Developer
     </div>
 
     <div className={styles.devRow}>
@@ -98,25 +104,6 @@ export default function Home() {
       </span>
       <span>2311401168</span>
     </div>
-  </div>
-
-  <div className={styles.teamHeading}>
-    👥 Team Members
-  </div>
-
-  <div className={styles.devRow}>
-    <span>Satyam Gupta</span>
-    <span>2311401167</span>
-  </div>
-
-  <div className={styles.devRow}>
-    <span>Ritesh Jat</span>
-    <span>2311401165</span>
-  </div>
-
-  <div className={styles.devRow}>
-    <span>Gajendra Verma</span>
-    <span>2311401211</span>
   </div>
 </div>
             
