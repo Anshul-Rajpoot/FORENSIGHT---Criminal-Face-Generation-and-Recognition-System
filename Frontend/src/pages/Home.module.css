@@ -247,3 +247,24 @@
   color: #e2e8f0;
 }
 
+.devRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.devRow:last-child {
+  border-bottom: none;
+}
+
+.devRow span:first-child {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.devRow span:last-child {
+  color: #b8c1d1;
+  font-size: 0.95rem;
+}
