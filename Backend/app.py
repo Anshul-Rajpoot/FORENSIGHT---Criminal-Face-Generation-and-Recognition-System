@@ -329,14 +329,31 @@ def enroll():
 @app.route("/api/latest-criminals", methods=["GET"])
 def latest_criminals():
     limit = _clamp_int(request.args.get("limit"), 10, min_value=1, max_value=50)
+
     try:
         criminals = list(
-            collection.find(
-                {},
-                {"_id": 0, "embedding": 0},
-            ).sort("createdAt", -1).limit(limit)
-        )
+    collection.aggregate([
+        {
+            "$match": {
+                "status": "NOT ARRESTED"
+            }
+        },
+        {
+            "$sample": {
+                "size": limit
+            }
+        },
+        {
+            "$project": {
+                "_id": 0,
+                "embedding": 0
+            }
+        }
+    ])
+)
+
         return jsonify({"criminals": criminals})
+
     except Exception as e:
         print("latest_criminals error:", e)
         return jsonify({"message": "Database not reachable"}), 503
