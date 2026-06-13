@@ -47,8 +47,8 @@ export default function Home() {
       setTimeout(() => {
         setActiveIndex((prev) => (prev + 1) % criminals.length);
         setFadeIn(true);
-      }, 200);
-    }, 3000);
+      }, 400);
+    }, 5000);
 
     return () => clearInterval(timerRef.current);
   }, [criminals]);
